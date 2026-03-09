@@ -1,25 +1,32 @@
 <?php
 require_once __DIR__ . '/../config.php';
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $nome = ($_POST['nome']);
-    $email = ($_POST['email']);
-    $senha = ($_POST['senha']);
+   
 
-    echo $nome, $senha, $email;
-    
-    if($nome && $email && $senha) {
-        $sql = "INSERT INTO 
-        usuarios (nome, email, senha) VALUES (:nome, :email, :senha)";
-        $stmt = $pdo-> prepare ($sql);
-        $stmt ->execute([
-            ':nome'=> $nome,
-            ':email'=> $email,
-            ':senha'=> password_hash($senha,PASSWORD_DEFAULT)
+if($_SERVER ['REQUEST_METHOD'] === 'POST') {
 
+    $nome = ($_POST ['nome'] ?? '');
+    $email = ($_POST ['email'] ?? '');
+    $senha = ($_POST ['senha'] ?? '');
+
+    if (empty($nome) || empty($email) || empty($senha)) {
+        $erro = "Todos os campos são obrigatórios.";
+    } else {
+        $sql = "INSERT INTO usuarios (nome, email, senha) VALUES (:nome, :email, :senha)";
+        $stmt = $conexao->prepare($sql);
+        $stmt->execute([
+            ':nome' => $nome,
+            ':email' => $email,
+            ':senha' => password_hash($senha, PASSWORD_DEFAULT)
         ]);
+        header('Location: ' . BASE_URL . '/usuarios/listar.php');
+        exit;
     }
-    }
+}
+    
+
+// debugging
+// echo $nome, $email, $senha;
 
 $titulo = "Adicionar Usuario |";
 require_once BASE_PATH . '/includes/cabecalho.php';
@@ -27,8 +34,6 @@ require_once BASE_PATH . '/includes/cabecalho.php';
 
 <section class="mb-4 border rounded-3 p-4 border-primary-subtle">
     <h3 class="text-center"><i class="bi bi-plus-circle-fill"></i> Adicionar Usuário</h3>
-
-
 
     <form method="post" class="w-75 mx-auto">
         <div class="form-group">
